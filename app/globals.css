@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 17% 3.7%;
+    --foreground: 40 35% 94%;
+    --card: 36 15% 6.5%;
+    --card-foreground: 40 35% 94%;
+    --popover: 36 19% 8.2%;
+    --popover-foreground: 40 35% 94%;
+    --primary: 39 63% 57%;
+    --primary-foreground: 40 17% 3.7%;
+    --secondary: 36 15% 6.5%;
+    --secondary-foreground: 40 35% 94%;
+    --muted: 36 12% 10%;
+    --muted-foreground: 38 8% 59%;
+    --accent: 36 19% 8.2%;
+    --accent-foreground: 40 35% 94%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 35% 94%;
+    --success: 142 71% 45%;
+    --success-foreground: 40 17% 3.7%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 40 17% 3.7%;
+    --border: 37 17% 14%;
+    --input: 37 17% 14%;
+    --ring: 39 63% 57%;
+    --chart-1: 39 63% 57%;
+    --chart-2: 142 71% 45%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 72% 51%;
+    --chart-5: 197 37% 24%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+    border-radius: 3px;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
