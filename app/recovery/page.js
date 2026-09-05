@@ -128,19 +128,27 @@ export default function RecoveryPage() {
             {/* Baseline vs REVIVE */}
             <section className="mt-8 rounded-xl border border-border bg-card p-5 lg:p-6">
               <SectionHeader title="Does REVIVE Recover More Revenue?" description="Baseline vs decision-based recovery comparison" />
-              <BaselineComparison data={metrics.baselineComparison} />
+              {metrics.baselineComparison ? (
+                <BaselineComparison data={metrics.baselineComparison} />
+              ) : (
+                <EmptyState title="Baseline comparison data is not available." />
+              )}
             </section>
 
             {/* Recovery Efficiency */}
             <section className="mt-8 rounded-xl border border-border bg-card p-5 lg:p-6">
               <SectionHeader title="Recovery Efficiency" description="Operational performance metrics" />
-              <RecoveryEfficiency metrics={metrics.efficiency} />
+              {metrics.efficiency ? (
+                <RecoveryEfficiency metrics={metrics.efficiency} />
+              ) : (
+                <EmptyState title="Efficiency metrics not available." />
+              )}
             </section>
 
             {/* Top Recovery Opportunities */}
             <section className="mt-8 rounded-xl border border-border bg-card p-5 lg:p-6">
               <SectionHeader title="Top Recovery Opportunities" description="Highest-value payments awaiting action" />
-              {metrics.opportunities.length === 0 ? (
+              {!metrics.opportunities || metrics.opportunities.length === 0 ? (
                 <EmptyState title="No recovery opportunities available." />
               ) : (
                 <RecoveryOpportunityTable data={metrics.opportunities} />
@@ -150,25 +158,41 @@ export default function RecoveryPage() {
             {/* Recent Recovery Activity */}
             <section className="mt-8 rounded-xl border border-border bg-card p-5 lg:p-6">
               <SectionHeader title="Recent Recovery Activity" description="Latest recovery actions and outcomes" />
-              <RecoveryActivity data={metrics.activity} />
+              {!metrics.activity || metrics.activity.length === 0 ? (
+                <EmptyState title="No recent activity available." />
+              ) : (
+                <RecoveryActivity data={metrics.activity} />
+              )}
             </section>
 
             {/* Insight + Guardrails */}
             <section className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <div className="rounded-xl border border-border bg-card p-5 lg:p-6">
                 <SectionHeader title="REVIVE Insight" description="Embedded decision intelligence" />
-                <RecoveryInsight insight={metrics.insight} />
+                {metrics.insight ? (
+                  <RecoveryInsight insight={metrics.insight} />
+                ) : (
+                  <EmptyState title="Insights not available." />
+                )}
               </div>
               <div className="rounded-xl border border-border bg-card p-5 lg:p-6">
                 <SectionHeader title="Recovery Guardrails" description="Bounded recovery rules" />
-                <RecoveryGuardrails rules={metrics.guardrails} />
+                {metrics.guardrails ? (
+                  <RecoveryGuardrails rules={metrics.guardrails} />
+                ) : (
+                  <EmptyState title="Guardrails not available." />
+                )}
               </div>
             </section>
 
             {/* Merchant Control */}
             <section className="mt-8 rounded-xl border border-border bg-card p-5 lg:p-6">
               <SectionHeader title="Merchant Recovery Policy" description="Policy boundaries governing recovery actions" />
-              <MerchantControl policy={metrics.merchantPolicy} />
+              {metrics.merchantPolicy ? (
+                <MerchantControl policy={metrics.merchantPolicy} />
+              ) : (
+                <EmptyState title="Policy not available." />
+              )}
             </section>
 
             <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-[11px] text-muted-foreground">
