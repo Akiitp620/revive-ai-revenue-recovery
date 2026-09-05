@@ -449,40 +449,39 @@ def override_decision(
 
 def get_latest_evaluations(db: Session) -> Dict[str, Any]:
     from app.models import EvaluationRun, EvaluationRunMetric
-    
+
+    # Start with a complete zero-default so the schema never receives a partial dict
+    defaults: Dict[str, Any] = {
+        "dataset_name": "held_out",
+        "sample_count": 0,
+        "baseline_recovered_revenue": 0.0,
+        "revive_recovered_revenue": 0.0,
+        "incremental_recovered_revenue": 0.0,
+        "improvement_percentage": 0.0,
+        "recovery_rate": 0.0,
+        "action_selection_accuracy": 0.0,
+        "root_cause_accuracy": 0.0,
+        "unnecessary_intervention_rate": 0.0,
+        "escalation_rate": 0.0,
+        "stop_rule_compliance": 1.0,
+        "policy_violations": 0.0,
+        "average_decision_latency": 0.0,
+        "tool_success_rate": 1.0,
+    }
+
     latest_run = db.query(EvaluationRun).order_by(EvaluationRun.id.desc()).first()
     if not latest_run:
-        return {
-            "dataset_name": "held_out",
-            "sample_count": 0,
-            "baseline_recovered_revenue": 0.0,
-            "revive_recovered_revenue": 0.0,
-            "incremental_recovered_revenue": 0.0,
-            "improvement_percentage": 0.0,
-            "recovery_rate": 0.0,
-            "action_selection_accuracy": 0.0,
-            "root_cause_accuracy": 0.0,
-            "unnecessary_intervention_rate": 0.0,
-            "escalation_rate": 0.0,
-            "stop_rule_compliance": 1.0,
-            "policy_violations": 0.0,
-            "average_decision_latency": 0.0,
-            "tool_success_rate": 1.0
-        }
-        
-    metrics = db.query(EvaluationRunMetric).filter(EvaluationRunMetric.evaluation_run_id == latest_run.id).all()
-    
-    result = {}
-    
+        return defaults
+
+    metrics = db.query(EvaluationRunMetric).filter(
+        EvaluationRunMetric.evaluation_run_id == latest_run.id
+    ).all()
+
+    # Overlay DB values on top of defaults so required fields always exist
+    result = dict(defaults)
     for metric in metrics:
         result[metric.metric_name] = metric.metric_value
-        
-    # Ensure sample_count and dataset_name are present (as fallback if missing in DB for old runs)
-    if "dataset_name" not in result:
-        result["dataset_name"] = "held_out"
-    if "sample_count" not in result:
-        result["sample_count"] = 1500
-        
+
     return result
 
 
