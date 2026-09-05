@@ -1,0 +1,37 @@
+[
+  {
+    "id": "pol_retry_1",
+    "version": "1.0",
+    "section": "retry policy",
+    "text": "Failed payments due to temporary network issues, timeouts, or minor processing glitches can be retried. The system is allowed to perform up to a maximum of 2 retries.",
+    "metadata": {"type": "retry", "source": "merchant_default"}
+  },
+  {
+    "id": "pol_hard_decline_1",
+    "version": "1.1",
+    "section": "hard decline policy",
+    "text": "Any transaction marked with hard decline codes (such as stolen card, lost card, fraud suspected, account closed, or do not honor) cannot be retried. The recovery action must be STOP.",
+    "metadata": {"type": "hard_decline", "source": "merchant_default"}
+  },
+  {
+    "id": "pol_high_value_1",
+    "version": "1.0",
+    "section": "high-value approval policy",
+    "text": "Transactions with an amount greater than or equal to $2000 that lack clear evidence (uncertain evidence) require manual intervention. The recovery action must be HUMAN_REVIEW.",
+    "metadata": {"type": "high_value", "source": "merchant_default"}
+  },
+  {
+    "id": "pol_escalate_1",
+    "version": "1.0",
+    "section": "escalation policy",
+    "text": "If a proposed recovery action is not present in the merchant's allowlist, or if rules conflict in a way that the system cannot determine a safe automatic action, the case must be marked as ESCALATE.",
+    "metadata": {"type": "escalation", "source": "merchant_default"}
+  },
+  {
+    "id": "pol_stop_rules_1",
+    "version": "1.0",
+    "section": "stopping rules",
+    "text": "Recovery efforts must cease and the action must be STOP if any of the following are true: 1) The expected net recovery is below the minimum recovery threshold. 2) The maximum number of retry attempts has been reached. 3) The failure is a hard decline.",
+    "metadata": {"type": "stopping_rules", "source": "merchant_default"}
+  }
+]
