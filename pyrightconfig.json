@@ -1,0 +1,7 @@
+{
+  "venvPath": "/Users/ak/Downloads/revive-revenue-recovery/backend",
+  "venv": "venv",
+  "extraPaths": [
+    "backend"
+  ]
+}
