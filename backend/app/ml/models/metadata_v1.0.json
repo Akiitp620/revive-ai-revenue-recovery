@@ -1,0 +1,30 @@
+{
+  "model_version": "v1.0",
+  "feature_list": [
+    "amount",
+    "past_attempts",
+    "err_timeout_or_gateway_error",
+    "err_insufficient_funds",
+    "err_lost_card",
+    "err_stolen_card",
+    "err_do_not_honor",
+    "err_fraud_suspected",
+    "err_R01_nsf",
+    "err_R02_account_closed",
+    "err_R03_no_account",
+    "err_generic_decline",
+    "err_unknown",
+    "pm_card",
+    "pm_ach",
+    "pm_wallet"
+  ],
+  "training_split_metadata": {
+    "dev_size": 7000,
+    "val_size": 1500
+  },
+  "validation_metrics": {
+    "roc_auc": 0.9845607651504467,
+    "log_loss": 0.13505296409130096
+  },
+  "model_artifact_path": "app/ml/models/xgb_recovery_v1.0.json"
+}
