@@ -4,6 +4,9 @@ import { ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function Sparkline({ data, warning }) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return <div className="h-8 w-20 rounded bg-muted/20" aria-hidden="true" />;
+  }
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
@@ -21,9 +24,27 @@ function Sparkline({ data, warning }) {
 }
 
 export function PaymentHealth({ data }) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <div className="flex h-[120px] items-center justify-center rounded-lg border border-dashed border-border">
+        <span className="text-sm text-muted-foreground">No payment health data available</span>
+      </div>
+    );
+  }
+
+  const validData = data.filter((item) => item && item.method);
+
+  if (validData.length === 0) {
+    return (
+      <div className="flex h-[120px] items-center justify-center rounded-lg border border-dashed border-border">
+        <span className="text-sm text-muted-foreground">No payment method metrics available</span>
+      </div>
+    );
+  }
+
   return (
     <div className="divide-y divide-border">
-      {data.map((item) => {
+      {validData.map((item) => {
         const warning = item.health === 'warning';
         return (
           <div key={item.method} className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0">
@@ -34,7 +55,7 @@ export function PaymentHealth({ data }) {
             <div className="flex items-center gap-4">
               <Sparkline data={item.sparkline} warning={warning} />
               <div className="min-w-[52px] text-right">
-                <p className="text-sm font-semibold text-foreground tabular-nums">{item.successRate}%</p>
+                <p className="text-sm font-semibold tabular-nums text-foreground">{item.successRate}%</p>
                 <div className={cn('flex items-center justify-end gap-0.5 text-[10px]', warning ? 'text-destructive' : 'text-muted-foreground')}>
                   {item.trend === 0 ? <Minus className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                   {item.trend === 0 ? 'stable' : `${Math.abs(item.trend)}%`}
