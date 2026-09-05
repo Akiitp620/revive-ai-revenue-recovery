@@ -131,11 +131,17 @@ def get_recovery_options(payment_id: str, db: Session = Depends(get_db)):
 def execute_recovery(
         request: RecoveryExecuteRequest,
         db: Session = Depends(get_db)):
-    success = api_service.execute_recovery_action(
-        db, request.payment_id, request.action)
-    if not success:
-        raise HTTPException(status_code=400, detail="Failed to execute action")
-    return {"status": "success"}
+    try:
+        success = api_service.execute_recovery_action(
+            db, request.payment_id, request.action)
+        if not success:
+            raise HTTPException(status_code=400, detail="Failed to execute action")
+        return {"status": "success"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        import traceback
+        raise HTTPException(status_code=500, detail=traceback.format_exc())
 
 
 @router.post("/decisions/{investigation_id}/override")
