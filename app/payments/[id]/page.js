@@ -34,6 +34,8 @@ export default function PaymentInvestigationPage() {
   const router = useRouter();
   const id = params.id;
 
+  const [payment, setPayment] = useState(null);
+  const [isInvestigating, setIsInvestigating] = useState(false);
   const [investigation, setInvestigation] = useState(null);
   const [error, setError] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
@@ -58,6 +60,14 @@ export default function PaymentInvestigationPage() {
   };
 
   useEffect(() => {
+    import('@/lib/mock/payments').then(({ findPayment }) => {
+      setPayment(findPayment(id));
+    });
+  }, [id]);
+
+  useEffect(() => {
+    if (!isInvestigating) return;
+
     let active = true;
     let eventSource = null;
 
@@ -131,7 +141,7 @@ export default function PaymentInvestigationPage() {
       active = false;
       if (eventSource) eventSource.close();
     };
-  }, [id]);
+  }, [id, isInvestigating]);
 
   function retry() {
     setError(false);
@@ -201,7 +211,7 @@ export default function PaymentInvestigationPage() {
     );
   }
 
-  if (!investigation) {
+  if (!payment) {
     return (
       <AppShell>
         <PageContainer>
@@ -211,8 +221,15 @@ export default function PaymentInvestigationPage() {
     );
   }
 
-  const { diagnosis, customer, recovery, recommendation, actions, policy, timeline, recoveryTrace } = investigation;
-  const amount = investigation.amount;
+  const diagnosis = investigation?.diagnosis;
+  const customer = investigation?.customer;
+  const recovery = investigation?.recovery;
+  const recommendation = investigation?.recommendation;
+  const actions = investigation?.actions;
+  const policy = investigation?.policy;
+  const timeline = investigation?.timeline;
+  const recoveryTrace = investigation?.recoveryTrace;
+  const amount = payment.amount;
 
   return (
     <AppShell>
@@ -229,8 +246,8 @@ export default function PaymentInvestigationPage() {
         <div className="mb-8 flex flex-col gap-4 rounded-xl border border-border bg-card p-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-destructive">Failed Payment</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground">{investigation.transactionId}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{customer.name} · {investigation.paymentMethod}</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground">{payment.transactionId}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{payment.customer} · {payment.paymentMethod}</p>
           </div>
           <div className="flex items-center gap-6">
             <div>
@@ -240,17 +257,37 @@ export default function PaymentInvestigationPage() {
             <div className="h-10 w-px bg-border" />
             <div>
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Recovery Probability</p>
-              <p className="text-2xl font-bold text-primary tabular-nums">{formatPercentage(recovery.probability)}</p>
+              <p className="text-2xl font-bold text-primary tabular-nums">{formatPercentage(payment.recoveryProbability)}</p>
             </div>
             <div className="h-10 w-px bg-border" />
             <div>
               <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Expected Recovery</p>
-              <p className="text-2xl font-bold text-success tabular-nums">{formatCurrency(recovery.expectedAmount)}</p>
+              <p className="text-2xl font-bold text-success tabular-nums">{formatCurrency(payment.expectedRecovery)}</p>
             </div>
           </div>
         </div>
 
-        {/* Failure Diagnosis + Customer Context */}
+        {!isInvestigating && !investigation && (
+          <section className="mb-8 flex flex-col items-center justify-center rounded-xl border border-border bg-card py-12 text-center">
+            <h3 className="mb-2 text-lg font-semibold text-foreground">Ready to Investigate</h3>
+            <p className="mb-6 max-w-md text-sm text-muted-foreground">
+              Run the AI decision engine to diagnose this failure and determine the highest-value recovery action.
+            </p>
+            <Button onClick={() => setIsInvestigating(true)} size="lg" className="gap-2">
+              Investigate Payment
+            </Button>
+          </section>
+        )}
+
+        {isInvestigating && !investigation && (
+          <section className="mb-8">
+            <LoadingSkeleton variant="cards" />
+          </section>
+        )}
+
+        {investigation && (
+          <>
+            {/* Failure Diagnosis + Customer Context */}
         <section className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="rounded-xl border border-border bg-card p-5">
             <SectionHeader title="Why did this payment fail?" />
@@ -476,8 +513,10 @@ export default function PaymentInvestigationPage() {
         </Dialog>
 
         <div className="border-t border-border pt-4 text-[11px] text-muted-foreground">
-          All figures are simulated demo data · Investigation ID: {investigation.transactionId}
+          All figures are simulated demo data · Transaction ID: {payment.transactionId}
         </div>
+          </>
+        )}
       </PageContainer>
     </AppShell>
   );
