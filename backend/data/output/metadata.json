@@ -1,0 +1,19 @@
+{
+  "seed": 42,
+  "total_cases": 10000,
+  "split": {
+    "development": 7000,
+    "validation": 1500,
+    "held_out": 1500
+  },
+  "scenarios": {
+    "s2_insufficient_funds": 3473,
+    "s3_hard_decline": 1541,
+    "s1_temporary_degradation": 1499,
+    "s5_method_specific_issue": 1021,
+    "s6_repeated_recovery_failure": 983,
+    "s7_unknown_failure": 963,
+    "s4_high_value_uncertain": 520
+  },
+  "recoverable_rate": 0.5307
+}
