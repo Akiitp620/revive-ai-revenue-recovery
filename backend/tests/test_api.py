@@ -156,3 +156,60 @@ def test_execution_policy():
     })
     assert response.status_code == 200
     assert response.json()["status"] == "success"
+
+
+# Regression test: Render production 500 — EvaluationRun exists but
+# EvaluationRunMetric rows are incomplete (evaluate.py skips string fields
+# like dataset_name; some float fields may also be absent from older runs).
+# get_latest_evaluations() must return 200 with a valid schema in all cases.
+def test_evaluations_latest_with_incomplete_metrics():
+    from app.models import EvaluationRun, EvaluationRunMetric
+
+    db = TestingSessionLocal()
+    try:
+        # Insert an EvaluationRun with only a partial set of metric rows —
+        # deliberately omit dataset_name (never stored as float) and
+        # several required float fields to reproduce the Render DB state.
+        run = EvaluationRun(
+            model_version="test_v1",
+            policy_version="v1",
+            dataset_version="held_out_1.0",
+        )
+        db.add(run)
+        db.commit()
+        db.refresh(run)
+
+        # Only write two metric rows — far fewer than EvaluationSummary requires
+        for name, value in [("sample_count", 42.0), ("recovery_rate", 0.55)]:
+            db.add(EvaluationRunMetric(
+                evaluation_run_id=run.id,
+                metric_name=name,
+                metric_value=value,
+            ))
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.get("/api/v1/evaluations/latest")
+    # Must never return 500 regardless of how incomplete the DB rows are
+    assert response.status_code == 200, (
+        f"Expected 200 with incomplete EvaluationRunMetric rows, got "
+        f"{response.status_code}: {response.text}"
+    )
+    data = response.json()
+    # All required EvaluationSummary fields must be present
+    required_fields = [
+        "dataset_name", "sample_count", "baseline_recovered_revenue",
+        "revive_recovered_revenue", "incremental_recovered_revenue",
+        "improvement_percentage", "recovery_rate", "action_selection_accuracy",
+        "root_cause_accuracy", "unnecessary_intervention_rate",
+        "escalation_rate", "stop_rule_compliance", "policy_violations",
+        "average_decision_latency", "tool_success_rate",
+    ]
+    for field in required_fields:
+        assert field in data, f"Missing required field in response: {field}"
+    # Real DB values must be preserved when present
+    assert data["recovery_rate"] == 0.55
+    # dataset_name must always be present (it's a string, never stored as a metric row)
+    assert data["dataset_name"] == "held_out"
+
