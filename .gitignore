@@ -46,3 +46,4 @@ env/
 file:memdb*
 .vscode/
 .pytest_cache/
+AGENTS.md
