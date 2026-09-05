@@ -2,7 +2,7 @@ import { formatCurrency } from '@/lib/utils/formatting';
 import { ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export function PolicyCard({ policy, amount }) {
-  const exceedsLimit = amount > policy.maxAutomaticRecoveryValue;
+  const requiresApproval = policy.requiresApproval;
 
   return (
     <div className="space-y-4">
@@ -25,19 +25,19 @@ export function PolicyCard({ policy, amount }) {
         </div>
       </div>
 
-      <div className={`flex items-center gap-3 rounded-lg border p-3 ${exceedsLimit ? 'border-warning/30 bg-warning/5' : 'border-success/30 bg-success/5'}`}>
-        {exceedsLimit ? (
+      <div className={`flex items-center gap-3 rounded-lg border p-3 ${requiresApproval ? 'border-warning/30 bg-warning/5' : 'border-success/30 bg-success/5'}`}>
+        {requiresApproval ? (
           <AlertTriangle className="h-5 w-5 shrink-0 text-warning" />
         ) : (
           <ShieldCheck className="h-5 w-5 shrink-0 text-success" />
         )}
         <div>
           <p className="text-sm font-medium text-foreground">
-            {exceedsLimit ? 'Human approval required' : 'Auto-execution permitted'}
+            {requiresApproval ? 'Human approval required' : 'Auto-execution permitted'}
           </p>
           <p className="text-xs text-muted-foreground">
-            {exceedsLimit
-              ? `Transaction (${formatCurrency(amount)}) exceeds automatic recovery limit of ${formatCurrency(policy.maxAutomaticRecoveryValue)}`
+            {requiresApproval
+              ? policy.reason || `Transaction requires manual review`
               : 'Transaction is within automatic recovery limits'}
           </p>
         </div>
